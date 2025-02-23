@@ -26,8 +26,3 @@ class FetchBreweries:
         file_path = Path(self.data_lake_dir) / 'bronze' / f'{timestamp}_breweries.json'
         print(file_path)
         self.save_data(data, file_path)
-
-# Exemplo de execução
-if __name__ == "__main__":
-    fetcher = FetchBreweries()
-    fetcher.execute()
