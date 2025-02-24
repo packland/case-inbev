@@ -63,6 +63,7 @@ x-airflow-common:
     AIRFLOW__API__AUTH_BACKENDS: 'airflow.api.auth.backend.basic_auth,airflow.api.auth.backend.session'
     DOCKER_HOST: unix:///var/run/docker.sock
     SCRIPTS_DIR: ${SCRIPTS_DIR:-.}
+    DATA_LAKE_DIR: ${DATA_LAKE_DIR:-.}
     # yamllint disable rule:line-length
     # Use simple http server on scheduler for health checks
     # See https://airflow.apache.org/docs/apache-airflow/stable/administration-and-deployment/logging-monitoring/check-health.html#scheduler-health-check-server
@@ -289,7 +290,7 @@ services:
       airflow-init:
         condition: service_completed_successfully
   spark:
-    image: docker.io/bitnami/spark:3.5
+    image: delta-spark
     environment:
       - SPARK_MODE=master
       - SPARK_RPC_AUTHENTICATION_ENABLED=no
@@ -300,7 +301,7 @@ services:
     ports:
       - '8180:8080'
   spark-worker:
-    image: docker.io/bitnami/spark:3.5
+    image: delta-spark
     environment:
       - SPARK_MODE=worker
       - SPARK_MASTER_URL=spark://spark:7077

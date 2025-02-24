@@ -1,6 +1,5 @@
 from pyspark.sql import SparkSession
-from pyspark.sql.functions import trim, current_date, lit
-from delta.tables import DeltaTable
+from pyspark.sql.functions import trim, current_date, lit, col  # Adicione 'col' aqui
 from config import Settings
 import os
 
@@ -9,12 +8,10 @@ class SilverLayerBrewerySC2:
         self.settings = Settings()
         self.spark = SparkSession.builder \
             .appName("SilverLayerBrewerySC2") \
-            .config("spark.sql.extensions", "io.delta.sql.DeltaSparkSessionExtension") \
-            .config("spark.sql.catalog.spark_catalog", "org.apache.spark.sql.delta.catalog.DeltaCatalog") \
             .getOrCreate()
         self.lake_dir = self.settings.DATA_LAKE_DIR
         self.bronze_path = f"{self.lake_dir}/bronze/"
-        self.silver_path = f"{self.lake_dir}/silver/"
+        self.silver_path = f"{self.lake_dir}/silver/brewery/"  # Modifiquei para incluir o subdiretório 'brewery'
         self.columns = ["name", "brewery_type", "street", "address_1", "address_2", "address_3", "city", "state", "state_province", "postal_code", "country", "longitude", "latitude", "phone", "website_url"]
 
     def process(self, file_name):
@@ -34,34 +31,29 @@ class SilverLayerBrewerySC2:
                            .withColumn("end_date", lit(None).cast("date")) \
                            .withColumn("is_active", lit(True))
 
-            # Verificar se a tabela Delta já existe
-            if not DeltaTable.isDeltaTable(self.spark, self.silver_path):
-                # Se não existir, criar uma nova tabela Delta
-                df_new.write.format("delta").save(self.silver_path)
-                print("✅ Tabela Delta criada com sucesso!")
+            # Verificar se a tabela Parquet já existe
+            if not os.path.exists(self.silver_path):
+                # Se não existir, criar uma nova tabela Parquet
+                df_new.write.parquet(self.silver_path)
+                print("✅ Tabela Parquet criada com sucesso!")
 
             # Carregar dados existentes da Silver Layer (se já existir)
-            delta_silver = DeltaTable.forPath(self.spark, self.silver_path)
+            df_silver = self.spark.read.parquet(self.silver_path)
 
             # Criar uma condição para identificar mudanças dinamicamente
-            update_condition = "delta.id = new.id AND ("
-            for col in self.columns:
-                update_condition += f"delta.{col} <> new.{col} OR "
-            update_condition = update_condition.rstrip(" OR ") + ")"
+            update_condition = " OR ".join([f"silver.{col} <> new.{col}" for col in self.columns])
 
             # Upsert SC2
-            delta_silver.alias("delta") \
-                .merge(df_new.alias("new"), "delta.id = new.id") \
-                .whenMatchedUpdate(
-                    condition=update_condition,
-                    set={
-                        "end_date": current_date(),
-                        "is_active": lit(False)
-                    }
-                ) \
-                .whenNotMatchedInsertAll() \
-                .execute()
+            df_merged = df_silver.alias("silver").join(df_new.alias("new"), "id", "outer") \
+                .selectExpr(
+                    "coalesce(silver.id, new.id) as id",
+                    *[f"coalesce(new.{col}, silver.{col}) as {col}" for col in self.columns],
+                    "coalesce(new.start_date, silver.start_date) as start_date",
+                    "coalesce(new.end_date, silver.end_date) as end_date",
+                    "coalesce(new.is_active, silver.is_active) as is_active"
+                )
 
+            df_merged.write.mode("overwrite").parquet(self.silver_path)
             print("✅ Silver Layer com SC2 processada com sucesso!")
             return True
         except Exception as e:

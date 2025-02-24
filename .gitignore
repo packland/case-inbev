@@ -1,5 +1,6 @@
 #project especifics
 data_lake/
+tests/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
