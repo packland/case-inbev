@@ -20,7 +20,7 @@ O projeto foi desenvolvido utilizando Apache Airflow e Apache Spark, ambos execu
 
 ## Scripts de ETL (Extração, Transformação e Carregamento)
 
-A lógica de ETL foi implementada principalmente em Python, buscando maximizar a utilização de classes e princípios SOLID (Single Responsibility, Open/Closed, Liskov Substitution, Interface Segregation, Dependency Inversion) para um código mais limpo, modular e manutenível.  A DAG do Airflow foi mantida o mais enxuta possível, focando na orquestração das tarefas.
+A lógica de ETL foi implementada em Python, buscando maximizar a utilização de classes e princípios SOLID (Single Responsibility, Open/Closed, Liskov Substitution, Interface Segregation, Dependency Inversion) para um código mais limpo, modular e manutenível, dentro do razoável para um projeto pequeno. A DAG do Airflow foi mantida o mais enxuta possível, focando na orquestração das tarefas.
 
 Os scripts Python principais são:
 
