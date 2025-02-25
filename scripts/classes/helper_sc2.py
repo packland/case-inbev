@@ -1,7 +1,7 @@
 from pyspark.sql import DataFrame
 from pyspark.sql.functions import concat_ws, md5, col, current_date, lit
 
-# Removed: utils.logger and utils.spark_session (not needed for the core logic)
+# autor: https://github.com/jaisingh12/DataPlatform/blob/master/utils/scdhandler.py
 
 class SCDHandler:
     def __init__(self):
