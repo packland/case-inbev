@@ -43,9 +43,6 @@ for file_name in files:
             print(f"Erro ao processar {file_name}: {e}")
             execution_success = False
 
-# Adicionar nova execução ao log
-log_tracker.add_new_execution('get_silver_data.py')
-
 # Lançar sucesso ou erro para o sistema
 if execution_success:
     print("Execução bem-sucedida")
