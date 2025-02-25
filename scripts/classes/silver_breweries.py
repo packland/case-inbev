@@ -1,5 +1,5 @@
 from pyspark.sql import SparkSession
-from pyspark.sql.functions import current_date, lit, to_date, year, month, col
+from pyspark.sql.functions import current_date, lit, to_date
 from config import Settings
 from helper_sc2 import SCDHandler
 import os
@@ -68,15 +68,3 @@ class SilverLayerBrewerySC2:
             print(f"Error processing {file_name}: {e}")
             raise
             return False
-
-if __name__ == "__main__":
-    processor = SilverLayerBrewerySC2()
-    # Example with partitioning by 'country'
-    success = processor.process('2025_02_23_21_26_06_breweries', partition_column='country')
-    # Example without partitioning
-    # success = processor.process('2025_02_23_21_26_06_breweries')
-
-    if success:
-        print("Processing complete.")
-    else:
-        print("Processing failed.")

@@ -1,4 +1,4 @@
-from classes.bronze_breweries import FetchBreweries  # Importe a classe FetchBreweries
+from classes.bronze_breweries import FetchBreweries
 import time
 import sys
 
@@ -18,5 +18,7 @@ if success:
     print("Execução bem-sucedida")
     sys.exit(0)
 else:
+    #Insira aqui uma lógica de erro. Alerta no slack ou algo do tipo. 
+
     print("Execução falhou após 3 tentativas")
     sys.exit(1)
