@@ -1,7 +1,7 @@
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import current_date, lit, to_date
 from config import Settings
-from helper_sc2 import SCDHandler
+from .helper_sc2 import SCDHandler
 import os
 import shutil
 

@@ -1,0 +1,25 @@
+FROM bitnami/spark:3.5
+
+# Define o diretório de trabalho (opcional, mas recomendado para organização)
+WORKDIR /app
+
+# Copia o requirements.txt para dentro do contêiner
+COPY requirements.txt /app/
+
+# Instala as dependências
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Define as variáveis de ambiente
+ENV SPARK_HOME=/opt/bitnami/spark \
+    PATH=$SPARK_HOME/bin:$PATH \
+    DATA_LAKE_DIR=/opt/bitnami/spark/data_lake \
+    SCRIPTS_DIR=/opt/bitnami/spark/scripts \
+    FETCH_URL=https://api.openbrewerydb.org/breweries
+
+# Expõe as portas (opcional, para documentação)
+EXPOSE 8080 7077
+
+# Comando de inicialização (MANTENHA o comando para iniciar o master do Spark,
+# se esse for o seu objetivo.  Se você quiser APENAS a imagem base com as
+# dependências, pode remover esta linha, ou usar um comando simples como CMD ["bash"])
+CMD ["spark-class", "org.apache.spark.deploy.master.Master"]
